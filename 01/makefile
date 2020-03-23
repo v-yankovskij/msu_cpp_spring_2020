@@ -1,6 +1,5 @@
 all: MyAllocator
 
-
 run: MyAllocator
 	./MyAllocator
 
