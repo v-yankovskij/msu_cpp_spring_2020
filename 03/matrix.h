@@ -9,7 +9,7 @@ public:
     size_t cols;
     std::vector<double> data_;
     
-    Row (size_t a)
+    row_ (size_t a)
     {
         cols = a;
         for (int i = 0; i < a; i++)
