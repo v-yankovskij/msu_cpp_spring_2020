@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            std::cout < 0;
+            std::cout << 0;
         }
     }
     return 0;
