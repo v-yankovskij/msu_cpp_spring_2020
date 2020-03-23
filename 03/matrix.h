@@ -3,7 +3,7 @@
 
 #include <vector>
 
-class Row
+class row_
 {
 public:
     size_t cols;
@@ -43,14 +43,14 @@ public:
     }
 };
 
-class Matrix
+class matrix_
 {
 public:
     size_t rows;
     size_t cols;
-    std::vector<Row> data;
+    std::vector<row_> data;
     
-    Matrix (size_t a, size_t b)
+    matrix_(size_t a, size_t b)
     {
         rows = a;
         cols = b;
@@ -60,7 +60,7 @@ public:
         }
     }
     
-    const Row& operator[](size_t i) const
+    const row_& operator[](size_t i) const
     {
         if ((i < 0) || (i >= rows))
         {
@@ -69,7 +69,7 @@ public:
         return data[i];
     }
     
-    Row& operator[](size_t i)
+    row_& operator[](size_t i)
     {
         if ((i < 0) || (i >= rows))
         {
@@ -78,12 +78,12 @@ public:
         return data[i];
     }
     
-    size_t getRows()
+    size_t get_rows()
     {
         return rows;
     }
     
-    size_t getColumns()
+    size_t get_columns()
     {
         return cols;
     }
@@ -99,7 +99,7 @@ public:
         }
     }
     
-    bool operator== (Matrix M)
+    bool operator== (matrix_ M)
     {
         if (cols != M.getColumns())
         {
@@ -122,7 +122,7 @@ public:
         return true;
     }
 
-    bool operator!= (Matrix M)
+    bool operator!= (matrix_ M)
     {
         return (*(this) != M);
     }
