@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-    size_t max_size = (size_t)std::stoi(argv[1]);
+    size_t max_size = (size_t)std::stoi(argv[1], nullptr);
     my_allocator allocator(max_size);
     for(int i = 2; i < argc; i++)
     {
@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            size_t size = (size_t)std::stoi(argv[i]);
+            size_t size = (size_t)std::stoi(argv[i], nullptr);
             char* ptr = allocator.alloc(size);
             if (ptr == nullptr)
             {
