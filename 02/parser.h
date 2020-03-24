@@ -32,8 +32,8 @@ public:
     {
         char pos;
         std::string token = "";
-        callback_on_start();
         bool dig;
+        callback_on_start();
         for (int i =0; i < text.length(); i++)
         {
             dig = true;
