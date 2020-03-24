@@ -124,7 +124,7 @@ public:
 
     bool operator!= (matrix_ M)
     {
-        return (*(this) != M);
+        return !(*(this) == M);
     }
 };
 
