@@ -8,3 +8,6 @@ def check(proc, expr, result):
         print('Got:' out.stdout)
     else:
         print(expr, ' - correct')
+
+check('./Parser', 'sator arepo tenet opera rotas', 'start string string string string string stop ')
+check('./Parser', '2 + 2 = 4', 'start number string number string number stop ') 
