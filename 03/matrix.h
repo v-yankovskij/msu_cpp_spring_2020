@@ -3,16 +3,16 @@
 
 #include <vector>
 
-class row_
+class Row
 {
 public:
     size_t cols;
     std::vector<double> data_;
     
-    row_ (size_t a)
+    Row (size_t a)
     {
         cols = a;
-        for (int i = 0; i < a; i++)
+        for (size_t i = 0; i < a; i++)
         {
             data_.push_back(0);
         }
@@ -43,14 +43,14 @@ public:
     }
 };
 
-class matrix_
+class Matrix
 {
 public:
     size_t rows;
     size_t cols;
-    std::vector<row_> data;
+    std::vector<Row> data;
     
-    matrix_(size_t a, size_t b)
+    Matrix(size_t a, size_t b)
     {
         rows = a;
         cols = b;
@@ -60,7 +60,7 @@ public:
         }
     }
     
-    const row_& operator[](size_t i) const
+    const Row& operator[](size_t i) const
     {
         if ((i < 0) || (i >= rows))
         {
@@ -69,23 +69,13 @@ public:
         return data[i];
     }
     
-    row_& operator[](size_t i)
+    Row& operator[](size_t i)
     {
-        if ((i < 0) || (i >= rows))
+        if (i >= rows)
         {
             throw std::out_of_range("");
         }
         return data[i];
-    }
-    
-    size_t get_rows()
-    {
-        return rows;
-    }
-    
-    size_t get_columns()
-    {
-        return cols;
     }
     
     void operator*= (double a)
@@ -99,13 +89,13 @@ public:
         }
     }
     
-    bool operator== (matrix_ M)
+    bool operator== (Matrix M)
     {
-        if (cols != M.getColumns())
+        if (cols != M.cols)
         {
             return false;
         }
-        if (rows != M.getRows())
+        if (rows != M.rows)
         {
             return false;
         }
@@ -122,7 +112,7 @@ public:
         return true;
     }
 
-    bool operator!= (matrix_ M)
+    bool operator!= (Matrix M)
     {
         return !(*(this) == M);
     }
