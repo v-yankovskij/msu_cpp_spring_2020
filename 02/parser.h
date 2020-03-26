@@ -20,28 +20,51 @@ public:
     void_function_ptr callback_on_start;
     void_function_ptr callback_on_stop;
     
-    parser(int_function_ptr number, string_function_ptr string, void_function_ptr start, void_function_ptr stop)
+    parser()
     {
-        callback_on_number = number;
-        callback_on_string = string;
-        callback_on_start = start;
-        callback_on_stop = stop;
+        callback_on_number = nullptr;
+        callback_on_string = nullptr;
+        callback_on_start = nullptr;
+        callback_on_stop = nullptr;
     }
     
+    void define_callback_on_number(int_function_ptr number)
+    {
+        callback_on_number = number;
+    }
+ 
+    void define_callback_on_string(string_function_ptr string)
+    {
+        callback_on_string = string;
+    }
+
+    void define_callback_on_start(void_function_ptr start)
+    {
+        callback_on_start = start;
+    }
+
+    void define_callback_on_stop(void_function_ptr stop)
+    {
+        callback_on_stop = stop;
+    }
+
     void parse(const std::string& text)
     {
         char pos;
         std::string token = "";
+        if (callback_on_start)
+        {
+            callback_on_start();
+        }
         bool dig;
-        callback_on_start();
         for (int i =0; i < text.length(); i++)
         {
             dig = true;
-            while (text[i] == '\n' || text[i] == '\t' || text[i] == ' ')
+            while (isspace(text[i]))
             {
                 i++;
             }
-            while (!(text[i] == '\n') && !(text[i] == '\t') && !(text[i] == ' ') && text[i])
+            while (text[i] && !isspace(text[i]))
             {
                 token += text[i];
                 if (!isdigit(text[i]))
@@ -52,13 +75,19 @@ public:
             }
             if (dig)
             {
-                callback_on_number(std::stoi(token));
+                if (callback_on_number)
+                {
+                    callback_on_number(std::stoi(token));
+                }
                 token.erase();
                 continue;
             }
             if(token.length())
             {
-                callback_on_string(token);
+                if (callback_on_string)
+                {
+                    callback_on_string(token);
+                }
             }
             token.erase();
         }
