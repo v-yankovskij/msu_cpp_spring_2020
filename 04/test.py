@@ -9,4 +9,4 @@ def check(proc, expr, result):
     else:
         print(expr, ' - correct')
         
-
+check('./Serializer', 'a 1 2', 'true true true')
