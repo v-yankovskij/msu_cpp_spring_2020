@@ -16,8 +16,8 @@ struct Data
 int main(int argc, char* argv[])
 {
     std::stringstream stream;
-	Serializer serializer(stream);
-	Deserializer deserializer(stream);
+    Serializer serializer(stream);
+    Deserializer deserializer(stream);
     Data x{argv[1][0], (std::stoi(argv[2]) > 0), std::stoi(argv[3])};
     Data y{'c', false, 1};
     serializer.save(x);
