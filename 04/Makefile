@@ -1,10 +1,10 @@
-all: MyAllocator
+all: Serializer
 
-run: MyAllocator
-	./MyAllocator
+run: Serializer
+	./Serializer
 
-test: MyAllocator
+test: Serializer
 	python3 ./test.py
 
-MyAllocator: main.cpp
-	g++ -o MyAllocator main.cpp 
+Serializer: main.cpp
+	g++ -o Serializer main.cpp 
