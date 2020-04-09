@@ -1,10 +1,10 @@
-all: Parser
+all: BigInt
 
-run: Parser
-	./Parser
+run: BigInt
+	./BigInt
 
-test: Parser
+test: BigInt
 	python3 ./test.py
 
-Parser: main.cpp
-	g++ -o Parser main.cpp 
+BigInt: main.cpp
+	g++ -o BigInt main.cpp 
