@@ -376,3 +376,4 @@ std::ostream& operator<< (std::ostream& out, const BigInt& value)
     return out;
 }
 
+#endif
