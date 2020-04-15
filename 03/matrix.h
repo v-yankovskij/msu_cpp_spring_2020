@@ -20,7 +20,7 @@ public:
     
     const double& operator[](size_t j) const
     {
-        if ((j >= 0) && (j < cols))
+        if (j < cols)
         {
             return data_[j];
         }
@@ -32,7 +32,7 @@ public:
     
     double& operator[](size_t j)
     {
-        if ((j >= 0) && (j < cols))
+        if (j < cols)
         {
             return data_[j];
         }
@@ -54,7 +54,7 @@ public:
     {
         rows = a;
         cols = b;
-        for (int i = 0; i < a; i++)
+        for (size_t i = 0; i < a; i++)
         {
             data.push_back(Row(cols));
         }
@@ -62,7 +62,7 @@ public:
     
     const Row& operator[](size_t i) const
     {
-        if ((i < 0) || (i >= rows))
+        if (i >= rows)
         {
             throw std::out_of_range("");
         }
@@ -80,9 +80,9 @@ public:
     
     void operator*= (double a)
     {
-        for (int i = 0; i < rows; i++)
+        for (size_t i = 0; i < rows; i++)
         {
-            for (int j = 0; j < cols; j++)
+            for (size_t j = 0; j < cols; j++)
             {
                 (*this)[i][j] *= a;
             }
@@ -99,9 +99,9 @@ public:
         {
             return false;
         }
-        for (int i = 0; i < rows; i++)
+        for (size_t i = 0; i < rows; i++)
         {
-            for (int j = 0; j < cols; j++)
+            for (size_t j = 0; j < cols; j++)
             {
                 if ((*this)[i][j] != M[i][j])
                 {
