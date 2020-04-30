@@ -89,7 +89,7 @@ public:
         }
     }
     
-    bool operator== (Matrix M)
+    bool operator== (const Matrix& M)
     {
         if (cols != M.cols)
         {
@@ -112,7 +112,7 @@ public:
         return true;
     }
 
-    bool operator!= (Matrix M)
+    bool operator!= (const Matrix& M)
     {
         return !(*(this) == M);
     }
