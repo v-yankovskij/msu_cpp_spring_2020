@@ -1,10 +1,10 @@
-all: BigInt
+all: Format
 
-run: BigInt
-	./BigInt
+run: Format
+	./Format
 
-test: BigInt
+test: Format
 	python3 ./test.py
 
-BigInt: main.cpp
-	g++ -o BigInt main.cpp 
+Format: main.cpp
+	g++ -o Format main.cpp 
