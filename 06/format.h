@@ -1,6 +1,6 @@
 #ifndef format_h
 #define format_h
-
+ 
 #include <iostream>
 #include <string>
 #include <sstream>
