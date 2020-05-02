@@ -9,4 +9,4 @@ def check(proc, expr, result):
     else:
         print(expr, ' - correct')
         
-check('./BigInt', '2 2', '4 4')
+check('./Format', '2 2', '2+2=4')
