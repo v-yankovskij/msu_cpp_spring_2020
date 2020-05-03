@@ -1,10 +1,10 @@
-all: Format
+all: Vector
 
-run: Format
-	./Format
+run: Vector
+	./Vector
 
-test: Format
+test: Vector
 	python3 ./test.py
 
 Format: main.cpp
-	g++ -o Format main.cpp 
+	g++ -o Vector main.cpp 
