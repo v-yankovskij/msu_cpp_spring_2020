@@ -9,4 +9,4 @@ def check(proc, expr, result):
     else:
         print(expr, ' - correct')
         
-check('./Format', '2 2', '2+2=4')
+check('./Vector', '1 2 3', '1 2 3 ')
