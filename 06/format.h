@@ -21,7 +21,7 @@ template <typename T, typename... ArgTypes> void to_vector(std::vector<std::stri
 }
 template <> void to_vector(std::vector<std::string>& vargs) {}
 
-template <typename... ArgTypes> std::string format_(std::string s, ArgTypes... Args)
+template <typename... ArgTypes> std::string format_(const std::string& s, ArgTypes&&... Args)
 {
     char c;
     std::ostringstream res;
@@ -67,7 +67,7 @@ template <typename... ArgTypes> std::string format_(std::string s, ArgTypes... A
 }
 
 
-template <typename... ArgTypes> std::string format(std::string&& s, ArgTypes&&... Args)
+template <typename... ArgTypes> std::string format(const std::string& s, ArgTypes&&... Args)
 {
     return format_(std::forward<std::string>(s), std::forward<ArgTypes>(Args)...);
 }
