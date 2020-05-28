@@ -8,26 +8,28 @@ template <class T>
 class Allocator
 {
 public:
-    using value_type = T;
-    using pointer = T*;
-    using size_type = size_t;
     
-    pointer allocate(size_type n)
+    pointer allocate(size_t n)
     {
         return static_cast<pointer>(::operator new(n * sizeof(value_type)));
     }
     
-    void deallocate(pointer p, size_type n)
+    void deallocate(T* p, size_t n)
     {
         ::operator delete(p, n * sizeof(value_type));
     }
     
-    template <class... args> void construct(pointer point, args... Args)
+    template <class... args> void construct(T* point, args&&... Args)
     {
-        ::new(point) value_type(Args...);
+        ptr = new(ptr) T(std::forward<Args>(arg));
     }
     
-    void destroy(pointer point)
+    void construct(T* ptr)
+    {
+        ptr = new(ptr) T();
+    }
+    
+    void destroy(T* point)
     {
         point->~value_type();
     }
@@ -43,7 +45,7 @@ public:
     using iterator = Iterator<value_type>;
     pointer current;
     
-    explicit Iterator(pointer p) : current(p) {}
+    explicit Iterator(T* p) : current(p) {}
     
     Iterator(const iterator& iter) : current(iter.current) {}
     
