@@ -10,9 +10,11 @@ public:
     int64_t res;
     bool nonn;
     BigInt* quot;
+    int64_t base;
     
     BigInt(int64_t b)
     {
+        base = 10;
         int64_t a = b;
         if (a < 0)
         {
@@ -20,14 +22,35 @@ public:
             nonn = false;
         }
         else nonn = true;
-        res = (a%100000);
-        if (a/100000 == 0)
+        res = (a%p);
+        if (a/base == 0)
         {
             quot = nullptr;
         }
         else
         {
-            quot = new BigInt(a/100000);
+            quot = new BigInt(a/p);
+        }
+    }
+    
+    BigInt(int64_t b, int_64_t new_base)
+    {
+        base = new_base;
+        int64_t a = b;
+        if (a < 0)
+        {
+            a = -a;
+            nonn = false;
+        }
+        else nonn = true;
+        res = (a%base);
+        if (a/base == 0)
+        {
+            quot = nullptr;
+        }
+        else
+        {
+            quot = new BigInt(a/base);
         }
     }
     
@@ -36,6 +59,15 @@ public:
         nonn = true;
         res = 0;
         quot = nullptr;
+        base = 10;
+    }
+    
+    BigInt(int64_t new_base)
+    {
+        nonn = true;
+        res = 0;
+        quot = nullptr;
+        base = new_base;
     }
     
     void brief()
@@ -61,13 +93,14 @@ public:
     {
         nonn = copied.nonn;
         res = copied.res;
+        base = copied.base
         if (copied.quot != nullptr)
         {
             if (quot == nullptr)
             {
-                quot = new BigInt(*(copied.quot));
+                quot = new BigInt(*(copied.quot), base);
             }
-            else *quot = BigInt(*(copied.quot));
+            else *quot = BigInt(*(copied.quot), base);
         }
         else quot = nullptr;
         return *this;
@@ -75,7 +108,8 @@ public:
     
     BigInt& operator=(const int64_t& copied)
     {
-        BigInt temp = BigInt(copied);
+        base = 10;
+        BigInt temp = BigInt(copied, base);
         *this = temp;
         return *this;
     }
@@ -84,9 +118,10 @@ public:
     {
         res = copied.res;
         nonn = copied.nonn;
+        base = copied.base;
         if (copied.quot != nullptr)
         {
-            quot = new BigInt(*copied.quot);
+            quot = new BigInt(*copied.quot, base);
         }
         else quot = nullptr;
     }
@@ -139,11 +174,11 @@ public:
             {
                 if ((a.quot)->nonn)
                 {
-                    a.res = temp%100000;
+                    a.res = temp%base;
                 }
                 else
                 {
-                    a.res = 100000-temp%100000;
+                    a.res = base-temp%base;
                     (a.quot)->res++;
                 }
             }
@@ -151,15 +186,15 @@ public:
             {
                 if ((a.quot)->nonn)
                 {
-                    a.res = 100000+temp%100000;
+                    a.res = base+temp%base;
                     (a.quot)->res--;
                 }
                 else
                 {
-                    a.res = -temp%100000;
+                    a.res = -temp%base;
                 }
             }
-            temp /= 100000;
+            temp /= base;
             a.nonn = (a.quot)->nonn;
             (a.quot)->nonn = true;
         }
@@ -168,13 +203,13 @@ public:
             a.nonn = (temp >= 0);
             if (temp >= 0)
             {
-                a.res = temp%100000;
+                a.res = temp%base;
             }
             else
             {
-                a.res = -temp%100000;
+                a.res = -temp%base;
             }
-            temp /= 100000;
+            temp /= base;
         }
         if (temp != 0)
         {
@@ -206,7 +241,7 @@ public:
                     }
                     else
                     {
-                        (a.quot)->res += 100000;
+                        (a.quot)->res += base;
                     }
                 }
             }
@@ -344,35 +379,7 @@ std::ostream& operator<< (std::ostream& out, const BigInt& value)
         temp.quot->nonn = true;
         out << *(temp.quot);
     }
-    if ((temp.res >= 10000)||(temp.quot == nullptr))
-    {
-        out << temp.res;
-    }
-    else
-    {
-        if (temp.res >= 1000)
-        {
-            out << "0" << temp.res;
-        }
-        else
-        {
-            if (temp.res >= 100)
-            {
-                out << "00" << temp.res;
-            }
-            else
-            {
-                if (temp.res >= 10)
-                {
-                    out << "000" << temp.res;
-                }
-                else
-                {
-                    out << "0000" << temp.res;
-                }
-            }
-        }
-    }
+    out << (char)('0' + temp.res);
     return out;
 }
 
