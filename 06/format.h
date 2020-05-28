@@ -19,7 +19,7 @@ template <typename T, typename... ArgTypes> void to_vector(std::vector<std::stri
     vargs.push_back(os.str());
     to_vector(vargs, Args...);
 }
-template <> void to_vector(std::vector<std::string>& vargs) {}
+void to_vector(std::vector<std::string>& vargs) {}
 
 template <typename... ArgTypes> std::string format_(const std::string& s, ArgTypes&&... Args)
 {
