@@ -9,4 +9,4 @@ def check(proc, expr, result):
     else:
         print(expr, ' - correct')
         
-check('./Vector', '1 2 3', '1 2 3 ')
+check('./Pool', '', '0')
