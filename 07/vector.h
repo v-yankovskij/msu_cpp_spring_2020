@@ -11,12 +11,12 @@ public:
     
     pointer allocate(size_t n)
     {
-        return static_cast<pointer>(::operator new(n * sizeof(value_type)));
+        return static_cast<pointer>(::operator new(n * sizeof(T)));
     }
     
     void deallocate(T* p, size_t n)
     {
-        ::operator delete(p, n * sizeof(value_type));
+        ::operator delete(p, n * sizeof(T));
     }
     
     template <class... args> void construct(T* point, args&&... Args)
