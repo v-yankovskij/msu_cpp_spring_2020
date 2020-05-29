@@ -50,15 +50,14 @@ public:
             task();
         }
     }
-    
+                  
     template <class Func, class... Args> auto exec(Func func, Args... args) -> std::future<decltype(func(args...))>
     {
-        using type = decltype(func(args...));
-        std::lock_guard<std::mutex> lock(mut);
         if (terminate)
         {
             throw std::runtime_error("The pool is not active");
         }
+        std::lock_guard<std::mutex> lock(mut);
         auto task = std::make_shared<std::packaged_task<decltype(func(args...))()>>(std::bind(func, args...));
         auto future = task->get_future();
         my_queue.push([task](){(*task)();});
