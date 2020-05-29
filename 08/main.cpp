@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <iostream>
+#include "pool.h"
+
 int main()
 {
     ThreadPool pool(4);
