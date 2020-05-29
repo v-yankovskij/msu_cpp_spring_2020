@@ -31,7 +31,7 @@ public:
     
     void destroy(T* point)
     {
-        point->~value_type();
+        point->~T();
     }
 };
 
