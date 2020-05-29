@@ -6,5 +6,5 @@ run: Vector
 test: Vector
 	python3 ./test.py
 
-Format: main.cpp
+Vector: main.cpp
 	g++ -o Vector main.cpp 
