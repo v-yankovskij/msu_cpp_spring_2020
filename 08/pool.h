@@ -1,3 +1,4 @@
+#ifndef pool_h
 #define pool_h
 
 #include <condition_variable>
@@ -9,7 +10,7 @@
 #include <queue>
 #include <thread>
 #include <vector>
-
+ 
 class ThreadPool
 {
 public:
