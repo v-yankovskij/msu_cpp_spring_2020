@@ -1,10 +1,10 @@
 all: Sort
 
-run: Pool
-	./Pool
+run: Sort
+	./Sort
 
-test: Pool
+test: Sort
 	python3 ./test.py
 
 Pool: main.cpp
-	g++ -o Pool main.cpp
+	g++ -o Sort main.cpp
