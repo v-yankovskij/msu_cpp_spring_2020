@@ -9,4 +9,4 @@ def check(proc, expr, result):
     else:
         print(expr, ' - correct')
         
-check('./Pool', '', '0')
+check('./Sort', '', '0')
