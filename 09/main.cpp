@@ -3,25 +3,32 @@
 #include <stdio.h>
 #include "sort.h"
 
-constexpr auto BufferSize = 8 << 20;
-
-int main(int argc, char* argv[])
+int main()
 {
-    std::vector<uint64_t> elements;
-    for (i = 1; i < argc; i++)
+    std::atomic<bool> finished(false);
+    std::atomic<int> finished_step(0);
+    std::atomic<int> finished_sort(0);
+    std::condition_variable condition;
+    std::mutex sort_finish_mutex;
+    std::mutex iter_finish_mutex;
+    std::mutex stream_read_mutex;
+    std::mutex output_queue_mutex;
+    uint_seq nums(M / sizeof(uint64_t));
+    std::ifstream datas("data.bin", std::ios::binary);
+    std::queue<std::string> output_queue;
+    std::vector<std::thread> threads;
+    if (!datas)
     {
-        elements.push_back(std::stoi(argv[i]));
+        throw std::invalid_argument("can't open file");
     }
-    std::ofstream input_file("input.txt", std::ios::binary | std::ios::trunc);
-    for (auto& elem : elements)
+    for (int i = 0; i < N; i++)
     {
-        input_file.write(reinterpret_cast<char*>(&elem), sizeof(elem));
+        threads.emplace_back(Sort, std::ref(nums),std::ref(datas), i, std::ref(output_queue), std::ref(finished), std::ref(finished_step), std::ref(finished_sort), std::ref(condition), std::ref(sort_finish_mutex), std::ref(iter_finish_mutex), std::ref(stream_read_mutex), std::ref(output_queue_mutex));
     }
-    auto path = std::experimental::filesystem::path("input.txt");
-    auto save_path = std::experimental::filesystem::path("output.txt");
-    FileSorter Sorter(BufferSize);
-    Sorter.Run(path.string(), save_path.string());
-    std::ifstream output_file("input.txt", std::ios::binary);
-    std::cout << output_file.rdbuf();
+    for (int i = 0; i < N; i++)
+    {
+        threads[i].join();
+    }
+    system("pause");
     return 0;
 }
