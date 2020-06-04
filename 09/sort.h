@@ -1,171 +1,195 @@
 #ifndef sort_h
 #define sort_h
 
-#include <algorithm>
-#include <condition_variable>
-#include <filesystem>
+#include <iostream>
 #include <fstream>
+#include <condition_variable>
+#include <thread>
 #include <mutex>
+#include <atomic>
 #include <queue>
 #include <string>
-#include <thread>
-#include <vector>
+#include <algorithm>
 
-class FileSorter
+constexpr auto M = 8<<20;
+constexpr auto N = 2;
+constexpr auto m = M/N;
+
+class uint_seq
 {
 public:
-    size_t buffer_size;
-    std::vector<uint64_t> buffers[2];
-    std::queue<std::vector<uint64_t>*> sort_queue;
-    std::queue<std::vector<uint64_t>*> write_queue;
-    std::mutex queue_mutex;
-    std::priority_queue<SortedFile> sorted_files;
-    std::mutex cond_mutex;
-    std::condition_variable _cond;
-    std::atomic<bool> _finished;
-    
-    FileSorter(size_t buffer_size_in_bytes)
+    size_t size;
+    uint64_t* numbers;
+
+    uint_seq (size_t n)
     {
-        buffer_size = buffer_size_in_bytes / sizeof(uint64_t) / 2;
-        _finished = false;
-        buffers[0].resize(buffer_size);
-        buffers[1].resize(buffer_size);
+        numbers = new uint64_t [n];
     }
-    
-    void Run(const std::string& file_path, const std::string& save_path)
+
+    const uint64_t& operator[](size_t i) const
     {
-        std::thread read_write_thread([this, &file_path](){ this->ReadWriteLoop(file_path);});
-        std::thread sort_thread([this]() { this->SortLoop(); });
-        read_write_thread.join();
-        sort_thread.join();
-        MergeFiles(save_path);
-    }
-    
-    class SortedFile
-    {
-    public:
-        uint64_t _elem;
-        std::shared_ptr<std::ifstream> _file;
-        std::string file_path;
-        SortedFile(const std::string& FilePath)
+        if ((i >= 0) && (i < size))
         {
-            _file = std::make_shared<std::ifstream>(filePath, std::ios::in | std::ios::binary)
-            file_path = FilePath;
-            d_file->read(reinterpret_cast<char*>(&_elem), sizeof(_elem));
+            return numbers[i];
         }
-        bool operator<(const SortedFile& file) const
+        else
         {
-            return _elem > file._elem;
-        }
-        void DeleteFile()
-        {
-            d_file->close();
-            std::error_code error;
-            std::experimental::filesystem::remove(std::experimental::filesystem::path(file_path), error);
-        }
-    };
-    
-    void ReadWriteLoop(const std::string& FilePath)
-    {
-        std::ifstream input_file(FilePath, std::ios::binary);
-        if (!input_file.is_open())
-        {
-            throw std::runtime_error("Cannot open the file: " + FilePath);
-        }
-        auto read_to_buffer = [this](std::ifstream& file, std::vector<uint64_t>& buffer)
-        {
-            size_t elements_read = 0;
-            while (elements_read < buffer.size() && file.read(reinterpret_cast<char*>(buffer.data() + elements_read), sizeof(uint64_t)))
-            {
-                elements_read++;
-            }
-            bool finished = elementsRead != buffer.size();
-            if (finished)
-            {
-                buffer.resize(elements_read);
-                std::lock_guard<std::mutex> lock(queue_mutex);
-                sort_queue.push(&buffer);
-            }
-            _cond.notify_one();
-            return finished;
-        };
-        auto write_file = [this, &FilePath](size_t file_index)
-        {
-            std::unique_lock<std::mutex> lock(cond_mutex);
-            _cond.wait(lock, [this]() { return !write_queue.empty(); });
-            std::vector<uint64_t>* sorted_buffer = nullptr;
-            std::lock_guard<std::mutex> lock(queue_mutex);
-            sorted_buffer = write_queue.front();
-            write_queue.pop();
-            if (!sorted_buffer->empty())
-            {
-                auto save_path = std::experimental::filesystem::path(FilePath).parent_path() / std::experimental::filesystem::path("tmp_" + std::to_string(file_index));
-                std::ofstream tmp_file(save_path, std::ios::binary | std::ios::out);
-                if (!tmp_file.is_open())
-                {
-                    throw std::runtime_error("Cannot open the file: " + save_path.string());
-                }
-                tmp_file.write(reinterpret_cast<const char*>(sortedBuffer->data()), sorted_buffer->size() * sizeof(uint64_t));
-                tmp_file.close();
-                sorted_files.push(SortedFile(save_path.string()));
-            }
-        };
-        auto* read_buffer = &buffers[0];
-        auto* sort_buffer = &buffers[1];
-        _finished = readToBuffer(input_file, *readBuffer);
-        std::swap(read_buffer, sort_buffer);
-        size_t filesProcessed = 1;
-        while(!_finished)
-        {
-            _finished = readToBuffer(inputFile, *readBuffer);
-            std::swap(readBuffer, sortBuffer);
-            
-            writeFile(filesProcessed);
-            ++filesProcessed;
-        }
-        writeFile(filesProcessed);
-    }
-    
-    void SortLoop()
-    {
-        while (!_finished || !sort_queue.empty())
-        {
-            std::unique_lock<std::mutex> lock(cond_mutex);
-            _cond.wait(lock, [this]() {return !sort_queue.empty(); });
-            std::vector<uint64_t>* buffer = nullptr;
-            {
-                std::lock_guard<std::mutex> lock(queue_mutex);
-                buffer = sort_queue.front();
-                sort_queue.pop();
-            }
-            std::sort(buffer->begin(), buffer->end());
-            {
-                std::lock_guard<std::mutex> lock(queue_mutex);
-                write_queue.push(buffer);
-            }
-            lock.unlock();
-            _cond.notify_one();
+            throw std::out_of_range("");
         }
     }
-    
-    void MergeFiles(const std::string& save_path)
+
+    uint64_t& operator[](size_t i)
     {
-        std::ofstream result(save_path, std::ios::binary | std::ios::out);
-        while (!sorted_files.empty())
+        if ((i >= 0) && (i < size))
         {
-            auto elem = sorted_files.top();
-            sorted_files.pop();
-            result.write(reinterpret_cast<char*>(&elem._elem), sizeof(elem._elem));
-            if (elem.d_file->read(reinterpret_cast<char*>(&elem._elem), sizeof(uint64_t)))
+            return numbers[i];
+        }
+        else
+        {
+            throw std::out_of_range("");
+        }
+    }
+
+    ~uint_seq()
+    {
+        delete[] numbers;
+    }
+};
+
+void split(uint64_t * numbers, std::ifstream& datas, int id, std::queue<std::string>& output_queue, std::mutex& stream_read_mutex)
+{
+    int snum = 0;
+    while (!datas.eof())
+    {
+        std::unique_lock<std::mutex> lock(stream_read_mutex);
+        datas.read(reinterpret_cast<char *>(numbers), m);
+        std::streamsize current_size = datas.gcount() / sizeof(uint64_t);
+        lock.unlock();
+        if (current_size != 0)
+        {
+            std::sort(numbers, numbers + current_size);
+            std::string name = std::to_string(0) + "." + std::to_string(id) + "." + std::to_string(snum) + ".bin";
+            std::ofstream output_stream(name, std::ios::binary);
+            output_stream.write(reinterpret_cast<char*>(numbers), current_size * sizeof(uint64_t));
+            output_queue.push(name);
+            snum++;
+        }
+    }
+}
+
+void merge(std::string& string1, std::string& string2, uint64_t* numbers, int id, int i, int snum, std::queue<std::string>&output_queue, std::mutex& output_queue_mutex)
+{
+    std::ifstream stream1(string1, std::ios::binary);
+    std::ifstream stream2(string2, std::ios::binary);
+    std::string name = std::to_string(i) + '.' + std::to_string(id) + '.' + std::to_string(snum) + ".bin";
+    std::ofstream output_stream(name, std::ios::binary);
+    uint64_t* left = numbers;
+    uint64_t* right = numbers + (m/(4*sizeof(uint64_t)));
+    uint64_t* centre = centre + (m/(4*sizeof(uint64_t)));
+    stream1.read(reinterpret_cast<char*>(left), m/4);
+    size_t read_left = stream1.gcount() / sizeof(uint64_t);
+    stream2.read(reinterpret_cast<char*>(right), m/4);
+    size_t read_right = stream2.gcount() / sizeof(uint64_t);
+    size_t l = 0;
+    size_t c = 0;
+    size_t r = 0;
+    while (!stream1.eof() || !stream2.eof() || l < read_left || c < read_right)
+    {
+        if ((l == read_left) && !stream1.eof())
+        {
+            stream1.read(reinterpret_cast<char*>(left), m/4);
+            read_left = stream1.gcount() / sizeof(uint64_t);
+            l = 0;
+        }
+        if ((r == read_right) && !stream2.eof())
+        {
+            stream2.read(reinterpret_cast<char*>(right), m/4);
+            read_right = stream2.gcount() / sizeof(uint64_t);
+            c = 0;
+        }
+        if (c == m/(2*sizeof(uint64_t)))
+        {
+            output_stream.write(reinterpret_cast<char*>(centre), c * sizeof(uint64_t));
+            c = 0;
+        }
+        if (l < read_left && r < read_right)
+        {
+            if (right[r] < left[l])
             {
-                sorted_files.push(elem);
+                centre[c] = right[r];
+                r++;
+                c++;
             }
             else
             {
-                elem.DeleteFile();
+                centre[c] = left[l];
+                l++;
+                c++;
+            }
+        }
+        else
+        {
+            if (l == read_left && r < read_right)
+            {
+                centre[c] = right[r];
+                r++;
+                c++;
+            }
+            else
+            {
+                if (r == read_right && l < read_left)
+                {
+                    centre[c] = left[l];
+                    l++;
+                    c++;
+                }
             }
         }
     }
-};
+    output_stream.write(reinterpret_cast<char*>(centre), c * sizeof(uint64_t));
+    std::unique_lock<std::mutex> qlock(output_queue_mutex);
+    output_queue.push(name);
+}
+
+void Sort(uint_seq& nums, std::ifstream & datas, int id, std::queue<std::string>& output_queue, std::atomic<bool>& finished, std::atomic<int>& finished_step, std::atomic<int>& finished_sort, std::condition_variable& condition, std::mutex& sort_finish_mutex, std::mutex& iter_finish_mutex, std::mutex& stream_read_mutex, std::mutex& output_queue_mutex)
+{
+    uint64_t * numb = nums.numbers + id * m / sizeof(uint64_t);
+    int i = 0;
+    int snum = 0;
+    split(numb, datas, id, output_queue, stream_read_mutex);
+    i++;
+    std::unique_lock<std::mutex> lock(iter_finish_mutex);
+    finished_step++;
+    condition.notify_all();
+    while (finished_step < 2)
+    {
+        condition.wait(lock);
+    }
+    lock.unlock();
+    while (output_queue.size() >= 2)
+    {
+        std::unique_lock<std::mutex> qLock(output_queue_mutex);
+        std::string tmp1 = output_queue.front();
+        output_queue.pop();
+        std::string tmp2 = output_queue.front();
+        output_queue.pop();
+        qLock.unlock();
+        merge(tmp1, tmp2, numb, id, i, snum, output_queue, output_queue_mutex);
+        snum++;
+    }
+    std::unique_lock<std::mutex> fLock(sort_finish_mutex);
+    finished_sort++;
+    if (finished_sort == N)
+    {
+        if (output_queue.empty())
+        {
+            std::cerr << "error, no output files" << std::endl;
+        }
+        else
+        {
+            std::cout << output_queue.front() << std::endl;
+        }
+    }
+}
 
 #endif
