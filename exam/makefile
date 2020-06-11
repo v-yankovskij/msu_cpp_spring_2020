@@ -1,10 +1,10 @@
-all: MyAllocator
+all: Exam
 
-run: MyAllocator
-	./MyAllocator
+run: Exam
+	./Exam
 
-test: MyAllocator
+test: Exam
 	python3 ./test.py
 
-MyAllocator: main.cpp
-	g++ -o MyAllocator main.cpp 
+Exam: exam.cpp
+	g++ -o Exam exam.cpp -pthread
