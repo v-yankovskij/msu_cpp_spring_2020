@@ -21,22 +21,12 @@ public:
     std::atomic<bool> terminate;
     size_t pool_size;
     
-    ThreadPool(size_t poolSize) 
-    {
-        pool_size = poolSize;
-        terminate = false;
-        for (size_t i = 0; i < pool_size; ++i)
-        {
-            pool.emplace_back(&thread_func, this);
-        }
-    }
-    
     void thread_func()
     {
         std::function<void()> task;
         while(true)
         {
-            std::unique_lock<std::mutex> lock(m);
+            std::unique_lock<std::mutex> lock(mut);
             while (my_queue.empty() && !terminate)
             {
                 cond.wait(lock);
@@ -50,7 +40,17 @@ public:
             task();
         }
     }
-                  
+
+    ThreadPool(size_t PoolSize)
+    {
+        pool_size = PoolSize;
+        terminate = false;
+        for (size_t i = 0; i < pool_size; ++i)
+        {
+            pool.emplace_back(&ThreadPool::thread_func, this);
+        }
+    }
+    
     template <class Func, class... Args> auto exec(Func func, Args... args) -> std::future<decltype(func(args...))>
     {
         if (terminate)
@@ -71,8 +71,8 @@ public:
         cond.notify_all();
         for(size_t i=0; i < pool_size; i++)
         {
-	    threads[i].join();
-	}
+            pool[i].join();
+        }
     }
     
 };
